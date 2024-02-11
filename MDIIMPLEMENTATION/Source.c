@@ -133,3 +133,55 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrivInstance, PSTR szCmdLine,
 	return msg.wParam;
 }
 
+LRESULT CALLBACK FrameWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+	static HWND hwndClient;
+	CLIENTCREATESTRUCT ClientCreate;
+	HWND hwndChild;
+	MDICREATESTRUCT mdiCreate;
+
+	switch (message) {
+	case WM_CREATE:
+		//create the client window
+		ClientCreate.hWindowMenu = hMenuInitWindow;
+		ClientCreate.idFirstChild = ID_FIRSTCHILD;
+
+		hwndClient = CreateWindow(TEXT("MDICLIENT"), NULL, WS_CHILD | WS_CLIPCHILDREN | WS_VISIBLE, 0, 0, 0, 0, hwnd, (HMENU)1, hInst, (PSTR)&ClientCreate);
+
+		return 0;
+
+	case WM_COMMAND:
+		switch (LOWORD(lParam)) {
+		case ID_FILE_NEWHELLO:
+			//create hello child window
+			mdiCreate.szClass = szHelloClass;
+			mdiCreate.szTitle = TEXT("HELLO");
+			mdiCreate.hOwner = hInst;
+			mdiCreate.x = CW_USEDEFAULT;
+			mdiCreate.y = CW_USEDEFAULT;
+			mdiCreate.cy = CW_USEDEFAULT;
+			mdiCreate.cx = CW_USEDEFAULT;
+			mdiCreate.style = 0;
+			mdiCreate.lParam = 0;
+
+			hwndChild = (HWND)SendMessage(hwndClient, WM_MDICREATE, 0, (LPARAM)(LPMDICREATESTRUCT)&mdiCreate);
+			return 0;
+
+		case ID_FILE_NEWRECTANGLE:
+			//create a child rect
+			mdiCreate.szClass = szRectClass;
+			mdiCreate.szTitle = TEXT("RECT");
+			mdiCreate.hOwner = hInst;
+			mdiCreate.x = CW_USEDEFAULT;
+			mdiCreate.y = CW_USEDEFAULT;
+			mdiCreate.cy = CW_USEDEFAULT;
+			mdiCreate.cx = CW_USEDEFAULT;
+			mdiCreate.style = 0;
+			mdiCreate.lParam = 0;
+
+			hwndChild = (HWND)SendMessage(hwndClient, WM_MDICREATE, 0, (LPARAM)(LPMDICREATESTRUCT)&mdiCreate);
+			return 0;
+		}
+		break;
+	}
+}
+
